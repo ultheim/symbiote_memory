@@ -158,8 +158,12 @@ window.processMemoryChat = async function(userText, apiKey, modelHigh, modelLow,
         try {
             const keywords = finalKeywords.split(',').map(s => s.trim());
             const memReq = await fetch(appsScriptUrl, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain" }, 
+                method: "POST", 
+                mode: "cors", // Mandatory for GitHub Pages
+                redirect: "follow", // Mandatory because Google redirects to a temporary URL
+                headers: { 
+                    "Content-Type": "text/plain" // Use text/plain to avoid "Preflight" CORS checks
+                },
                 body: JSON.stringify({ action: "retrieve", keywords: keywords })
             });
 
