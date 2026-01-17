@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+    <title>Symbiosis Organism</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="symbiosis-container" onclick="handleCanvasClick()"><canvas id="symbiosisCanvas"></canvas></div>
+
+    <div id="mood-legend"></div>
+
+    <div id="terminal-history" class="hidden">
+        <div id="terminal-content"></div>
+    </div>
+
+    <div id="subtitle-mask">
+        <div id="subtitle-track"></div>
+    </div>
+    
+    <div id="full-text-display" class="hidden" onclick="handleCanvasClick()">
+        <div id="text-content"></div>
+    </div>
+
+    <div id="ui-layer">
+        <div id="ui-bar">
+            <button id="historyBtn" onclick="toggleHistory()">LOG</button>
+            <button id="modeBtn" onclick="toggleMode()">AUDIO</button> <input type="text" id="wordInput" placeholder="INITIALIZING" autocomplete="off">
+            <button id="sendBtn" onclick="handleInput()">...</button>
+        </div>
+    </div>
+
+    <script src="audio.js"></script>
+    <script src="visuals.js"></script>
+    <script src="memory.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

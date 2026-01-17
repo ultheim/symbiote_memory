@@ -1,0 +1,249 @@
+/* Update in style.css */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #050505;
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+    position: fixed; 
+    width: 100%; 
+    height: 100dvh; /* Change from 100vh to 100dvh */
+}
+
+#symbiosis-container {
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100dvh; /* Match the body height */
+    z-index: 1;
+}
+canvas { display: block; }
+
+/* --- MOOD LEGEND (New) --- */
+#mood-legend {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    z-index: 5;
+    pointer-events: none; /* Let clicks pass through */
+    transition: opacity 0.5s ease;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 2px black;
+}
+
+.legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 0 8px currentColor;
+}
+
+.legend-text {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* --- TERMINAL HISTORY --- */
+#terminal-history {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 5, 8, 0.95);
+    z-index: 8; /* Below UI, Above Canvas */
+    backdrop-filter: blur(10px);
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+    transition: opacity 0.3s ease, pointer-events 0.3s ease;
+    opacity: 1;
+    pointer-events: auto;
+}
+#terminal-history.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+#terminal-content {
+    max-width: 800px;
+    margin: 60px auto 120px auto; /* Space for UI */
+    color: #aaa;
+}
+.term-msg { margin-bottom: 20px; line-height: 1.5; border-bottom: 1px solid #222; padding-bottom: 10px; }
+.term-user { color: #ff7300; font-weight: bold; }
+.term-ai { color: #ccc; }
+
+/* Interactive History Styles */
+.term-ai.interactive {
+    cursor: pointer;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+.term-ai.interactive:hover {
+    color: #fff;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+.term-ai.interactive::after {
+    content: " [RESTORE GRAPH]";
+    font-size: 0.7em;
+    color: #555;
+    margin-left: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.term-ai.interactive:hover::after {
+    opacity: 1;
+}
+
+.term-meta { font-size: 0.8em; color: #555; margin-bottom: 4px; }
+
+/* --- SUBTITLES --- */
+#subtitle-mask {
+    position: absolute;
+    bottom: 140px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%; 
+    height: 50px;
+    overflow: hidden;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1s ease;
+    mask-image: linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+#subtitle-track {
+    display: flex;
+    align-items: center;
+    justify-content: left; 
+    white-space: nowrap;
+    position: absolute;
+    left: 50%; 
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); 
+}
+
+.char-span {
+    font-family: 'Courier New', monospace; 
+    font-size: 16px; 
+    color: rgba(255, 115, 0, 0.3); 
+    transition: all 0.2s ease; 
+    text-transform: uppercase; 
+    letter-spacing: 2px;
+    flex-shrink: 0; 
+    margin-right: 15px; 
+}
+
+.char-span.active {
+    color: #fff; 
+    font-size: 22px; 
+    font-weight: bold;
+    text-shadow: 0 0 15px rgba(255, 115, 0, 0.9);
+    transform: scale(1.1);
+}
+
+/* --- FULL TEXT DISPLAY (New) --- */
+#full-text-display {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+    width: 85%;
+    max-width: 700px;
+    max-height: 60vh;
+    background: rgba(10, 10, 12, 0.9);
+    border: 1px solid rgba(255, 115, 0, 0.3);
+    padding: 30px;
+    border-radius: 10px;
+    z-index: 20;
+    backdrop-filter: blur(15px);
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#full-text-display.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -55%) scale(0.95);
+}
+
+#text-content {
+    color: #e0e0e0;
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: left;
+    white-space: pre-wrap;
+}
+
+/* --- UI LAYER --- */
+#ui-layer {
+    position: fixed; 
+    bottom: 0; /* Changed from 30px to 0 for better mobile anchoring */
+    left: 0;
+    width: 100%;
+    z-index: 10; 
+    display: flex; 
+    justify-content: center;
+    pointer-events: none; /* Let clicks pass through around the bar */
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+#ui-bar {
+    pointer-events: auto;
+    display: flex;
+    gap: 10px;
+    width: 90%;
+    max-width: 500px;
+    background: rgba(10, 10, 10, 0.9); 
+    padding: 12px; 
+    border-radius: 30px;
+    border: 1px solid rgba(255, 115, 0, 0.2); 
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: all 0.3s ease;
+}
+
+#ui-bar.auth-mode {
+    border-color: #ff0000;
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.2);
+}
+
+input {
+    background: transparent; border: none; color: #ff7300; padding: 10px 10px;
+    flex-grow: 1; font-family: monospace; text-transform: uppercase; 
+    outline: none; font-size: 16px;
+}
+
+button {
+    background: rgba(255, 115, 0, 0.15); border: 1px solid rgba(255, 115, 0, 0.5);
+    color: #ff7300; padding: 10px 15px; border-radius: 20px; font-weight: bold;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap; font-size: 14px;
+}
+button:active { background: #ff7300; color: black; transform: scale(0.95); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Mobile specific adjustment */
+@media (max-width: 600px) {
+    #ui-bar { width: 95%; padding: 8px; }
+    button { padding: 8px 12px; font-size: 12px; }
+    input { font-size: 14px; }
+}
