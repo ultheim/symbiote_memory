@@ -153,38 +153,48 @@ window.processMemoryChat = async function(userText, apiKey, modelHigh, modelLow,
     }
 
     // Retrieve from Google Sheet
-    if (appsScriptUrl && appsScriptUrl !== "SKIP" && (finalKeywords || userText.length > 3)) {
-        console.log("🔍 2. Searching Google Sheet for:", finalKeywords); 
+    if (appsScriptUrl && appsScriptUrl !== "SKIP") {
+    try {
+        const keywords = finalKeywords.split(',').map(s => s.trim());
+        const memReq = await fetch(appsScriptUrl, {
+            method: "POST", 
+            mode: "cors",
+            redirect: "follow",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ 
+                action: "retrieve_complex", // MATCHES SCRIPT
+                keywords: keywords,
+                owner: "Arvin"              // REQUIRED BY SCRIPT
+            })
+        });
 
-        try {
-            const keywords = finalKeywords.split(',').map(s => s.trim());
-            const memReq = await fetch(appsScriptUrl, {
-                method: "POST", 
-                mode: "cors", // Mandatory for GitHub Pages
-                redirect: "follow", // Mandatory because Google redirects to a temporary URL
-                headers: { 
-                    "Content-Type": "text/plain" // Use text/plain to avoid "Preflight" CORS checks
-                },
-                body: JSON.stringify({ action: "retrieve", keywords: keywords })
-            });
+        const memRes = await memReq.json();
 
-            const textRes = await memReq.text();
-            let memRes;
-            try {
-                memRes = JSON.parse(textRes);
-            } catch (err) {
-                memRes = { memories: [] };
-            }
+        if(memRes.relevant_memories && memRes.relevant_memories.length > 0) {
+            retrievedContext = "MEMORIES FOUND:\n" + memRes.relevant_memories.join("\n");
+            window.lastRetrievedMemories = retrievedContext;
+        }
+    } catch (e) { console.error("Memory Retrieval failed", e); }
+}
 
-            if(memRes.memories && memRes.memories.length > 0) {
-                console.log("📂 Memories Found:", memRes.memories); 
-                retrievedContext = "MEMORIES FOUND:\n" + memRes.memories.join("\n");
-                window.lastRetrievedMemories = retrievedContext;
-            } else {
-                console.log("📂 No relevant memories found.");
-            }
-        } catch (e) { console.error("Memory Retrieval failed", e); }
-    }
+// ... Generation Logic ...
+
+// --- STEP 4: ASYNC STORAGE ---
+if (appsScriptUrl && appsScriptUrl !== "SKIP" && synthData.new_fact) {
+    fetch(appsScriptUrl, {
+        method: "POST",
+        mode: 'no-cors', 
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({ 
+            action: "store_atomic", // MATCHES SCRIPT
+            fact: synthData.new_fact,
+            importance: 5,
+            owner: "Arvin",
+            type: "memory",
+            topics: synthData.topics 
+        })
+    }).catch(e => console.error("❌ Save failed", e));
+}
 
     // --- STEP 3: GENERATION (V2 ENHANCEMENT - MOOD ASSIGNMENT) ---
     let instructions = `
