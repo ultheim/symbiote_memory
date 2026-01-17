@@ -17,6 +17,7 @@ window.initializeSymbiosisSession = async function() {
         const req = await fetch(appsScriptUrl, {
             method: "POST",
             mode: "cors",
+            redirect: "follow",
             headers: { "Content-Type": "text/plain" },
             body: JSON.stringify({ action: "get_recent_chat" })
         });
